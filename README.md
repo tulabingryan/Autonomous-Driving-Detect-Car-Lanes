@@ -1,12 +1,14 @@
 # Udacity Project 1
 ## Finding Lane Lines on the Road
+[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-
+<img src="laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
 
 
 ### Background
 This is the first project for Udacity's Self-driving Car Engineering Program.
-This project aims to create an algorithm that detects lane lines on the road. Three videos taken by a camera mounted on the front of a moving car are provided:   
+This project aims to create an algorithm that detects lane lines on the road. Three videos taken by a camera mounted on the front of a moving car are provided:
+
 - solidWhiteRight.mp4
 - solidYellowLeft.mp4 
 - challenge.mp4
@@ -16,6 +18,7 @@ The detected lane lines in the video shall be annotated using a red line overimp
 
 ### Pipeline Summary
 To create the algorithm, image processing techniques were used. The pipeline is tested first on an image where lane lines are detected and annotated. Then, the videos were processed frame by frame by applying the pipeline on each video frame (as was done in an image). The pipeline can be summarized in the following steps.
+
 Step 1. Blur image to smooth out noise but retain edges
 Step 2. Detect edges
 Step 3. Mask edges to neglect edges which are not of interest
@@ -43,7 +46,7 @@ This algorithm requires python 3.5 and imports the following packages:
 ### Pipeline Details
 
 #### Step 1. Image Smoothing
-In this project, image conversion to grayscale was not done. This decision has been made after encountering difficulties in detecting yellow lanes especially in the challenge video since the yellow lane would just blend with the road in grayscale mode. Instead, RGB image is directly processed. To enhace the detection of lane edges, the image is blurred using the bilateral filter. This method is used instead of the gaussian filter as it is better in preserving the edges while smoothing out the noises [^1]. Through various trials and testing the following parameter values were observed to give the best results.
+In this project, image conversion to grayscale was not done. This decision has been made after encountering difficulties in detecting yellow lanes especially in the challenge video since the yellow lane would just blend with the road in grayscale mode. Instead, RGB image is directly processed. To enhace the detection of lane edges, the image is blurred using the [bilateral filter](http://docs.opencv.org/2.4/doc/tutorials/imgproc/gausian_median_blur_bilateral_filter/gausian_median_blur_bilateral_filter.html). This method is used instead of the gaussian filter as it is better in preserving the edges while smoothing out the noises. Through various trials and testing the following parameter values were observed to give the best results.
 
     d = 5             # Diameter of each pixel neighborhood that is used during filtering
     sigmaColor = 100  # pixel distance in color space that will be mixed together
@@ -57,6 +60,9 @@ After image smoothing, the Canny edge detection is used to detect the edges. Upo
 
 #### Step 3. Edge Masking
 To eliminate the unwanted edges, a polygon mask is used. In this step, it is crucial to define the vertices of the polygon at the proper coordinates in the image to avoid masking the region of interest which would significantly decrease the number of detected lane edges. It is important to note here that the order of the vertices as they are written in the code is crucial. Putting them in incorrect order would create a different mask than what is intended. It is suggested to write the vertices in clockwise order. Furthermore, displaying the mask during trials would greatly help in defining the coordinates of the vertices.
+
+<img src="sample_wrongVertex.jpg" width="480" alt="Masking Error" />
+
 
 To make the algorithm adaptable to other image sizes the vertices are defined as a percentage of the image shape.
 A trapezoidal polygon is chosen with the following vertices:
@@ -94,7 +100,7 @@ It is important to note though that if the buffer array is increased further it 
 
 
 #### Step 7. Line Extrapolation
-The data (X's and Y's) collected in the buffer arrays are used in line approximation using numpy.polyfit[^2]. In this application, the range of the Y is already known and chosen to be from 63% to 100% of the image height. The unknown values then are the X's. To determine the values of the X's, I interchanged the order of the X and Y argument in the numpy.polyfit function since I am looking for the X's. The output of the polyfit function is an array of weights to be used to aproximate the X value for a given Y value (i.e., X = f(Y)). Then I generated a linear array of Y values ranging from 63% to 100% of the image height. The corresponding X values are determined using another function, numpy.poly1d[^3], which uses the previously derived weights. The process creates a pair of arrays (for x coordinates and corresponding y coordinates) which are used in drawing the left and right lanes. The following code summarizes this process.
+The data (X's and Y's) collected in the buffer arrays are used in line approximation using [numpy.polyfit](https://docs.scipy.org/doc/numpy/reference/generated/numpy.polyfit.html). In this application, the range of the Y is already known and chosen to be from 63% to 100% of the image height. The unknown values then are the X's. To determine the values of the X's, I interchanged the order of the X and Y argument in the numpy.polyfit function since I am looking for the X's. The output of the polyfit function is an array of weights to be used to aproximate the X value for a given Y value (i.e., X = f(Y)). Then I generated a linear array of Y values ranging from 63% to 100% of the image height. The corresponding X values are determined using another function, [numpy.poly1d](https://docs.scipy.org/doc/numpy/reference/generated/numpy.poly1d.html#numpy.poly1d), which uses the previously derived weights. The process creates a pair of arrays (for x coordinates and corresponding y coordinates) which are used in drawing the left and right lanes. The following code summarizes this process.
 
     w1 = np.polyfit((y_leftLane), (x_leftLane), 1)
     y_series = np.linspace(imshape[0]*0.63, imshape[0], imshape[0]*0.4)
@@ -157,3 +163,4 @@ I am planning to improve the codes though to make it more generic and follow a c
 [^2]: https://docs.scipy.org/doc/numpy/reference/generated/numpy.polyfit.html (accessed 12 February 2017)
 
 [^3]: https://docs.scipy.org/doc/numpy/reference/generated/numpy.poly1d.html#numpy.poly1d (accessed 12 February 2017)
+
