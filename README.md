@@ -121,8 +121,19 @@ To draw the extrapolated line, I used the opencv2 function cv2.line((x1,y1),(x2,
 Finally, the annotations (i.e., lines) are merged with the original image or video frame and reconstructed as the annotated videos. To make the drawn lines semi-transparrent I used the weighted_image() function which was given with the original files of this project. The annotated videos are named as follows in this repository:
 
 - white.mp4
+
+<img src="./white.gif" width="480" alt="Ouput white" />
+
+
 - yellow.mp4
+
+<img src="./yellow.gif" width="480" alt="Ouput yellow" />
+
+
 - extra.mp4
+
+<img src="./extra.gif" width="480" alt="Ouput extra" />
+
 
 The ipython notebook is also available, named as P1.ipynb.
 
@@ -136,22 +147,27 @@ The ipython notebook is also available, named as P1.ipynb.
 
 
 ### Algorithm Limitations
-This algorithm successfully detects the lane lines in the given videos including the challenge video. However, the line segregation is based on the assumption that the left and right lanes are approximately located at the left and right side of the video frame respectively which is only true if the vehicle (or the camera) is located somewhere in the middle of the road lanes. In situations that this assumption is false, the algorithm would probably fail to segregate the detected lines properly. If line segregation fails, the lane approximation would also fail. For example, it is yet unknown how the algorithm would perform when the car meets a street intersection. 
+This algorithm successfully detects the lane lines in the given videos including the challenge video. However, the line segregation is based on the assumption that the left and right lanes are approximately located at the left and right side of the video frame respectively which is only true if the vehicle (or the camera) is located somewhere in the middle of the road lanes. In situations that this assumption is false, the algorithm would probably fail to segregate the detected lines properly. If line segregation fails, the lane approximation would also fail. 
 
 Another limitation of this algorithm is that it only annotates straight lines, in fact, this is the reason that the annotation is shortened since it would overshoot in the curved lanes like in the challenge video.
 
+Furthermore, it is yet unknown how the algorithm would perform when the car meets a street intersection. It would be interesting to make this code more flexible to different scenarios.
+
+
 ### Room for improvements
-To make the algorithm better, more stable, and generic, there should be a better way of segregating the lane lines and employ some other techniques of image pre-processing to enhance the detection of the edges. I am thinking of trying the method proposed by some colleagues in Github and Slack which is warping the image to create a "birds-eye-view" of the road. Then, different filters shall be used to detect lanes of different colors. They also use a different approach of segregating the lines into left and right lanes which is by dividing the image horizontally into several strips. They derive the histogram of the detected X's on each strip and use the top 2 as the location of the left and right lanes. I think this is a better way of line segregation. Their implementation was published for the 4th project of this program and it looks so cool. I am excited to improve this code and create something as fascinating as they did.
+To make the algorithm better, more stable, and generic, there should be a better way of segregating the lane lines and employ some other techniques of image pre-processing to enhance the detection of the edges. I am thinking of trying the method proposed by some colleagues in Github and Slack which is warping the image to create a "birds-eye-view" of the road. Then, different filters shall be used to detect lanes of different colors. They also use a different approach of segregating the lines into left and right lanes. They divided the image horizontally into several strips then derive the histogram of the detected X's on each strip. The top 2 highest X values in the histogram were considered as the location of the left and right lanes. Their implementation was published for the 4th project of this program and it looks so cool. I am excited to improve this code and create something as fascinating as they did.
 
-Another room for improvement is to use curve annotations that follow the curvature of the lane lines. Further experimentation and tweaking with the data and the 2nd degree of the numpy.polyfit() function would be a good point to start.
+Another room for improvement is to use curve annotations that follow the curvature of the lane lines. Further experimentation and tweaking with the data and exploring the 2nd degree of the numpy.polyfit() function would be a good point to start.
 
-Lastly, it would be nice to make the algorithm know how to detect the edge of the road. This is useful in actual driving scenario when the roads has no lane lines painted on, e.g., in rural dirt roads. I am planning to use this algorithm in detecting the road edges and the lane lines here in my country, the Philippines, which is known to be one of the countries with worst traffic scenarios.  
+Lastly, it would be nice to make the algorithm know how to detect the edge of the road. This is useful in actual driving scenario when the roads has no lane lines painted on, e.g., in rural dirt roads. I am planning to use this algorithm in detecting the road edges and the lane lines here in my country, the Philippines, which is known to have one of the worst traffic scenarios in the world.  
 
 
 ### Hurdles and Lessons Learned
-*I had a lot of fun doing this project! What puzzled me out in the beginning is that I detect too few edges. I traced the problem, trying to find out if there is something wrong with how I use the bilateral filter. I displayed the output of each step of the pipeline and I discovered that I lose the detected edges after image masking. I made a mistake in writing the order of the vertices of the polygon mask. I found out that the sequence of the vertices is crucial in creating the intended shape of the polygon. Displaying the mask helped a lot to see where the mask actualy lies on the image and on the video.*
-*It is difficult to detect some colors if an image is converted to grayscale. This was observed in the challenge video when there was a portion of the road where the yellow lane would just "disappear" in grayscale. Trying to detect the yellow lane in a colored image gave a hint that it is the way to go. This also led to finding a better smoothing technique. After searching through the opencv documentation about smoothing images, I settled on used bilateral filter instead of the gausian filter. Bilateral filter is better at keeping the edges while smoothing out the noises and it gives a parameter on how distant in the color space should the pixels be for them to be combined. However, bilateral filtering increases the data processing time.*
-*Before using the numpy.polyfit function, I manually get the mean of X's and Y's so I can get a reference point on the lane. To extrapolate the line, I derive two points from the reference point. The two points for X are derived by adding and subtracting the standard deviation from the reference X.*
+I had a lot of fun doing this project! What puzzled me out in the beginning is that I detected too few edges. I traced the problem, trying to find out if there is something wrong with how I use the bilateral filter. I displayed the output of each step of the pipeline and I discovered that I lose the detected edges after image masking. I made a mistake in writing the order of the vertices of the polygon mask. I found out that the sequence of the vertices is crucial in creating the intended shape of the polygon. Displaying the mask helped a lot to see where the mask actualy lies on the image and on the video.
+
+Another hurdle was the difficulty in detecting some colors (e.g., yellow lane) in an image if it is converted to grayscale. This was observed in the challenge video when there was a portion of the road where the yellow lane would just "disappear" in grayscale. Trying to detect the yellow lane using the raw colored image gave a hint that it is the better way to go. This also led to finding a better smoothing technique. After searching through the opencv documentation about smoothing images, I settled on using bilateral filter instead of the gausian filter. Bilateral filter is better at keeping the edges while smoothing out the noises and it gives additional parameter on how distant in the color space should the pixels be for them to be combined. However, bilateral filtering increases the data processing time.
+
+For the line extrapolation, I used to manually get the mean of X's and Y's so I can get a reference point on the lane. To extrapolate the line, I derived two points from the reference point. The two points for X are derived by adding and subtracting the standard deviation from the reference X.
     
     x1 = x_mean + x_std
     x2 = x_mean - x_std
@@ -165,8 +181,9 @@ Then, I would use the opencv function to draw the extrapolated line:
 
     cv2.line(img,(int(x1),int(y1)),(int(x2),int(y2)), color, thickness)
 
-However, this method requires more lines of code and is only limited to straight lines. So I had decided to use the numpy.polyfit function which can extrapolate into several polynomial degree. I did try the second degree approximation but somehow it makes the annotation lines too "snaky". Hence, in the end, I still settled on the linear approximation which I think sufficient for the requirements of this project. 
-I am planning to improve the codes though to make it more generic and follow a curve line. I think this would be implemented in the project 4.
+However, this method requires more lines of code and is only limited to straight lines. So I had decided to use the numpy.polyfit function which can extrapolate into other degrees of fitting. I did try the second degree approximation but somehow it makes the annotation lines too "snaky". Hence, in the end, I still settled on the linear approximation which I think sufficient for the requirements of this project.
+
+I am planning to improve the codes though to make it more generic and follow a curve line in the future. I think this would be implemented in the project 4.
 
 
 
