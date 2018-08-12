@@ -56,8 +56,8 @@ In this project, image conversion to grayscale was not done. This decision has b
 #### Step 2. Edge Detection
 After image smoothing, the Canny edge detection is used to detect the edges. Upon series of experimentations, the following parameter values are chosen: 
     
-    low_threshold = 100
-    high_threshold = 200
+    low_threshold = 50
+    high_threshold = 150
 
 #### Step 3. Edge Masking
 To eliminate the unwanted edges, the image is masked except a region of interest defined by a polygon. In this step, it is crucial to define the vertices of the polygon at the proper coordinates in the image to avoid masking the region of interest which would significantly decrease the number of detected lane edges. The order of the vertices as they are written in the code matters and putting them in incorrect order would create a different polygon than what is intended as shown in the image below. In this case, the intended polygon is a trapezoid such that the points on the lane that intersects with the red area will be detected. However, as shown below, the mask actually neglected several points on the lane which would create problems later in the line extrapolation. Such error was created by writing the vertices in the order indicated by the number annotations.
@@ -77,9 +77,9 @@ The Hough function is used to detect the lines and through several trials, the f
 
     rho = 1               # distance resolution in pixels of the Hough grid
     theta = np.pi/180     # angular resolution in radians of the Hough grid
-    threshold = 7         # minimum number of votes (intersections in Hough grid cell)
-    min_line_len = 15     # minimum number of pixels making up a line
-    max_line_gap = 3      # maximum gap in pixels between connectable line segments
+    threshold = 30         # minimum number of votes (intersections in Hough grid cell)
+    min_line_len = 100     # minimum number of pixels making up a line
+    max_line_gap = 160      # maximum gap in pixels between connectable line segments
 
 
 
